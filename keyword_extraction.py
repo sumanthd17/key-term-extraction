@@ -16,9 +16,9 @@ from scipy.sparse import csr_matrix, lil_matrix
 # creating stop list
 #nltk.download('stopwords')
 stopwords = nltk.corpus.stopwords.words('english')
-words = ['one', 'would', 'may', 'use', 'give', 'could', 'might']
+words = ['one', 'would', 'may', 'use', 'give', 'could', 'might', 'the']
 stopwords.extend(words)
-
+#print(stopwords)
 # lemantizing to remove multiple occurances of similar words
 lemmatiser = WordNetLemmatizer()
 
@@ -73,7 +73,7 @@ freq_words = []
 for k, v in sorted_word_freq:
     if len(freq_words) <= 10:
         freq_words.append(k)
-# print(freq_words)
+print(freq_words)
 
 # list of all the sentences
 content = []
@@ -131,4 +131,24 @@ def create_cooc_matrix():
                         else:
                             cooc_matrix[key][word] = 1
 create_cooc_matrix()
-print(cooc_matrix['machine'])
+#print(cooc_matrix['machine'])
+
+X2_dict = {}
+def X2_test():
+    for key in word_freq:
+        X2 = 0
+        nw = sum(cooc_matrix[key].values())
+        if nw < 2:
+            continue
+        for word in freq_words:
+            pg = sum(cooc_matrix[word].values()) / len(word_freq)
+            try:
+                freq_w_g = cooc_matrix[key][word]
+            except:
+                freq_w_g = 0
+            X2 += (freq_w_g - (nw * pg))**2 / (nw * pg)
+            X2_dict[key] = X2
+
+X2_test()
+sorted_dict = sorted(X2_dict.items(), key=lambda x: x[1], reverse=True)
+print(sorted_dict)
