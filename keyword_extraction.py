@@ -7,6 +7,7 @@
 
 # importing req libraries
 from nltk.stem import WordNetLemmatizer
+from nltk.stem.porter import *
 from nltk.corpus import stopwords
 import nltk
 import numpy as np
@@ -16,50 +17,60 @@ from scipy.sparse import csr_matrix, lil_matrix
 # creating stop list
 #nltk.download('stopwords')
 stopwords = nltk.corpus.stopwords.words('english')
-words = ['one', 'would', 'may', 'use', 'give', 'could', 'might', 'the']
-stopwords.extend(words)
+# SMART stop words - 571
+file = "stopwords.txt"
+stoplist = []
+with open(file) as f:
+    lines = f.readlines()
+    lines = [x.strip() for x in lines]
+    for line in lines:
+        stoplist.append(line)
+stopwords.extend(stoplist)
+
 #print(stopwords)
+
 # lemantizing to remove multiple occurances of similar words
 lemmatiser = WordNetLemmatizer()
+stemmer = PorterStemmer()
 
 file = open("turing.txt")
 
-def structure(word):
-    if word[-1] == '.':
-        word = word[:-1]
-    elif word[-1] == ',':
-        word = word[:-1]
-    elif word[-1] == 's':
-        word = word[:-1]
-    elif word[-1] == '"':
-        word = word[:-1]
-    elif word[-1] == "'":
-        word = word[:-1]
-    elif word[-1] == ")":
-        word = word[:-1]
-    elif word[-1] == "?":
-        word = word[:-1]
-    elif word[0] == "(":
-        word = word[1:]
-    elif word[0] == ',':
-        word = word[1:]
-    elif word[0] == 's':
-        word = word[1:]
-    elif word[0] == '"':
-        word = word[1:]
-    elif word[0] == "'":
-        word = word[1:]
-
-    return word
+# def structure(word):
+#     if word[-1] == '.':
+#         word = word[:-1]
+#     elif word[-1] == ',':
+#         word = word[:-1]
+#     elif word[-1] == 's':
+#         word = word[:-1]
+#     elif word[-1] == '"':
+#         word = word[:-1]
+#     elif word[-1] == "'":
+#         word = word[:-1]
+#     elif word[-1] == ")":
+#         word = word[:-1]
+#     elif word[-1] == "?":
+#         word = word[:-1]
+#     elif word[0] == "(":
+#         word = word[1:]
+#     elif word[0] == ',':
+#         word = word[1:]
+#     elif word[0] == 's':
+#         word = word[1:]
+#     elif word[0] == '"':
+#         word = word[1:]
+#     elif word[0] == "'":
+#         word = word[1:]
+#
+#     return word
 
 # creating dictionary for the frequencies of words
 word_freq = {}
 for word in file.read().split():
     word = word.lower()
     if word not in stopwords:
-        word = structure(word)
+        #word = structure(word)
         word = lemmatiser.lemmatize(word, pos="v")
-
+        #word = stemmer.stem(word)
         if word not in word_freq:
             word_freq[word] = 1
         else:
@@ -125,7 +136,7 @@ def create_cooc_matrix():
                 if key in words:
                     words.remove(key)
                     for word in words:
-                        word = structure(word)
+                        #word = structure(word)
                         if word in cooc_matrix[key].keys():
                             cooc_matrix[key][word] += 1
                         else:
